@@ -1,3 +1,5 @@
+from startGame import gameStart
+
 from pylash.core import stage, init, addChild, KeyCode
 from pylash.loaders import LoadManage
 from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField, TextFormatWeight
@@ -5,10 +7,20 @@ from pylash.events import MouseEvent, LoopEvent, KeyboardEvent
 from pylash.media import Sound, MediaEvent
 from pylash.ui import LoadingSample1, Button
 
-def initSettingPage(dataList):
+
+bgmPlay = False
+effectsPlay = False
+p1Profile = 0
+p2Profile = 1
+
+def initSettingPage(data):
+    global settingLayer, dataList, profileIndex, p1Arrow, bgmOff, effectsOff
+
     # add the setting layer
     settingLayer = Sprite()
     addChild(settingLayer)
+
+    dataList = data
 
     # add the bg image
     settingBg = Bitmap(BitmapData(dataList["settingBg"]))
@@ -35,60 +47,135 @@ def initSettingPage(dataList):
     hintTxt.font = "Bradley Hand"
     settingLayer.addChild(hintTxt)
 
-    global profileTarget, profileIndex, p1Arrow, choosing, p1
-    choosing = True
+    # add the BGM button
+    bgmStyle = Sprite()
+    bgmOn = Bitmap(BitmapData(dataList["bgmOn"]))
+    bgmOff = Bitmap(BitmapData(dataList["off"]))
+    bgmStyle.addChild(bgmOn)
+    bgmStyle.addChild(bgmOff)
+    bgmBtn = Button(bgmStyle, None, None, None)
+    bgmBtn.x = 260-50-bgmStyle.width
+    bgmBtn.y = 500
+    settingLayer.addChild(bgmBtn)
+    bgmBtn.addEventListener(MouseEvent.MOUSE_UP, bgmSwitch)
+
+    # add the effects button
+    effectsStyle = Sprite()
+    effectsOn = Bitmap(BitmapData(dataList["effectsOn"]))
+    effectsOff = Bitmap(BitmapData(dataList["off"]))
+    effectsStyle.addChild(effectsOn)
+    effectsStyle.addChild(effectsOff)
+    effectsBtn = Button(effectsStyle, None, None, None)
+    effectsBtn.x = 260+50
+    effectsBtn.y = 500
+    settingLayer.addChild(effectsBtn)
+    effectsBtn.addEventListener(MouseEvent.MOUSE_UP, effectsSwitch)
+
+    # add button hints
+    bgmTxt = TextField()
+    bgmTxt.text = "BGM"
+    bgmTxt.size = 30
+    bgmTxt.x = 260-50-bgmStyle.width/2-bgmTxt.width/2
+    bgmTxt.y = 590
+    bgmTxt.textColor = "#2a5d95"
+    bgmTxt.font = "Bradley Hand"
+    settingLayer.addChild(bgmTxt)
+
+    effectsTxt = TextField()
+    effectsTxt.text = "Effects"
+    effectsTxt.size = 30
+    effectsTxt.x = 260+50+effectsStyle.width/2-effectsTxt.width/2
+    effectsTxt.y = 590
+    effectsTxt.textColor = "#2a5d95"
+    effectsTxt.font = "Bradley Hand"
+    settingLayer.addChild(effectsTxt)
+
     # p1 choose the profile
     p1 = Sprite()
     settingLayer.addChild(p1)
     profileIndex = [0, 1, 2]
-    profileTarget = 0
     p1Arrow = Bitmap(BitmapData(dataList["p1Arrow"]))
     p1Arrow.height = p1Arrow.height/p1Arrow.width * 75
     p1Arrow.width = 75
-    p1Arrow.x = 95+(profileTarget%len(profileIndex))*165-p1Arrow.width/2
+    p1Arrow.x = 95 + (p1Profile%len(profileIndex))*165 - p1Arrow.width/2
     p1Arrow.y = 340
     p1.addChild(p1Arrow)
     
-    stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown)
-    # p1.addEventListener(LoopEvent.ENTER_FRAME, loop)
-    # p1.addEventListener(KeyboardEvent.KEY_UP, keyUp)
-    
-    # p1.removeAllEventListeners()
-    del profileIndex[profileTarget%len(profileIndex)]
+    stage.addEventListener(KeyboardEvent.KEY_DOWN, p1Choosing)
 
-    # add p2
-    # p2 = Sprite()
-    # settingLayer.addChild(p2)
-    # profileTarget = profileIndex[profileIndex[0]]
-    # p2Arrow = Bitmap(BitmapData(dataList["p2Arrow"]))
-    # p2Arrow.height = p1Arrow.height/p1Arrow.width * 75
-    # p2Arrow.width = 75
-    # p2Arrow.x = 95+(profileTarget%len(profileIndex))*165-p2Arrow.width/2
-    # p2Arrow.y = 340
-    # p2.addChild(p2Arrow)
-
-def keyDown(e):
+def p1Choosing(e):
+    global p1Profile, p2Profile, p2Arrow
     if e.keyCode == KeyCode.KEY_RIGHT:
-        profileTarget += 1
-        print("right")
-        p1Arrow.x = 95+(profileTarget%len(profileIndex))*165-p1Arrow.width/2
+        p1Profile = (p1Profile+1)%len(profileIndex)
+        p1Arrow.x = 95+p1Profile*165-p1Arrow.width/2
     elif e.keyCode == KeyCode.KEY_LEFT:
-        profileTarget -= 1
-        print("left")
-        p1Arrow.x = 95+(profileTarget%len(profileIndex))*165-p1Arrow.width/2
+        p1Profile = (p1Profile-1)%len(profileIndex)
+        p1Arrow.x = 95+(p1Profile)*165-p1Arrow.width/2
     elif e.keyCode == KeyCode.KEY_SPACE:
-        choosing = False
-        print("quit")
-        p1.addEventListener(LoopEvent.EXIT_FRAME, test)
+        # store the profile of p1 and remove it from the available list
+        del profileIndex[p1Profile]
+
+        stage.removeEventListener(KeyboardEvent.KEY_DOWN, p1Choosing)
+        stage.addEventListener(KeyboardEvent.KEY_DOWN, p2Choosing)
+        
+        # add p2
+        p2 = Sprite()
+        settingLayer.addChild(p2)
+        p2Profile = 0
+        p2Arrow = Bitmap(BitmapData(dataList["p2Arrow"]))
+        p2Arrow.height = p1Arrow.height/p1Arrow.width * 75
+        p2Arrow.width = 75
+        p2Arrow.x = 95 + profileIndex[0]*165 - p2Arrow.width/2
+        p2Arrow.y = 340
+        p2.addChild(p2Arrow)
+
+def p2Choosing(e):
+    global p2Profile
+    if e.keyCode == KeyCode.KEY_RIGHT:
+        p2Profile = (p2Profile+1) % len(profileIndex)
+        p2Arrow.x = 95 + profileIndex[p2Profile]*165 - p1Arrow.width/2
+    elif e.keyCode == KeyCode.KEY_LEFT:
+        p2Profile = (p2Profile-1) % len(profileIndex)
+        p2Arrow.x = 95 + profileIndex[p2Profile]*165 - p1Arrow.width/2
+    elif e.keyCode == KeyCode.KEY_SPACE:
+        stage.removeEventListener(KeyboardEvent.KEY_DOWN, p2Choosing)
+
+        # define the state of buttons
+        normal = Bitmap(BitmapData(dataList["normalGoBtn"]))
+        over = Bitmap(BitmapData(dataList["actionGoBtn"]))
+        down = Bitmap(BitmapData(dataList["actionGoBtn"]))
+
+        startBtn = Button(normal, over, down, None)
+        startBtn.x = 260-normal.width/2
+        startBtn.y = 425
+        settingLayer.addChild(startBtn)
+
+        def next(e):
+            # remove the contents of cover layer
+            settingLayer.remove()
+
+            # init cover layer
+            gameStart(dataList)
+
+        startBtn.addEventListener(MouseEvent.MOUSE_UP, next)
+
+        
+def bgmSwitch(e):
+    global bgmPlay
+    if (bgmPlay):
+        bgmPlay = False
+        bgmOff.visible = True
     else:
-        print("bad condition")
+        bgmPlay = True
+        bgmOff.visible = False
 
-
-def loop(e):
-    p1Arrow.x = 95+(profileTarget%len(profileIndex))*165-p1Arrow.width/2
-    if choosing == False:
-        p1.addEventListener(LoopEvent.EXIT_FRAME, test)
-    print("loop")
-
-def test(e):
-    pass
+def effectsSwitch(e):
+    global effectsPlay
+    if (effectsPlay):
+        effectsPlay = False
+        effectsOff.visible = True
+        print(effectsPlay)
+    else:
+        effectsPlay = True
+        effectsOff.visible = False
+        print(effectsPlay)
