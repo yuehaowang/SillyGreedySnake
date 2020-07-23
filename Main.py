@@ -12,8 +12,8 @@ def main():
     # save the file paths which need to be loaded
     loadList = [
         {"name": "coverBg", "path" : "./src/images/coverBg.png"},
-        {"name": "normalBtn", "path" : "./src/images/normalBtn.png"},
-        {"name": "actionBtn", "path" : "./src/images/actionBtn.png"},
+        {"name": "normalStartBtn", "path" : "./src/images/normalStartBtn.png"},
+        {"name": "actionStartBtn", "path" : "./src/images/actionStartBtn.png"},
         {"name": "settingBg", "path" : "./src/images/settingBg.png"},
         {"name": "profile0", "path" : "./src/images/profile0.png"},
         {"name": "profile1", "path" : "./src/images/profile1.png"},
@@ -25,6 +25,17 @@ def main():
         {"name": "p2Arrow", "path" : "./src/images/p2Arrow.png"},
         {"name": "normalGoBtn", "path" : "./src/images/normalGoBtn.png"},
         {"name": "actionGoBtn", "path" : "./src/images/actionGoBtn.png"},
+        {"name": "playingBg", "path" : "./src/images/playingBg.png"},
+        {"name": "snake1HeadUp", "path" : "./src/images/snake1HeadUp.png"},
+        {"name": "snake1HeadDown", "path" : "./src/images/snake1HeadDown.png"},
+        {"name": "snake1HeadLeft", "path" : "./src/images/snake1HeadLeft.png"},
+        {"name": "snake1HeadRight", "path" : "./src/images/snake1HeadRight.png"},
+        {"name": "snake1Body", "path" : "./src/images/snake1Body.png"},
+        {"name": "snake2HeadUp", "path" : "./src/images/snake2HeadUp.png"},
+        {"name": "snake2HeadDown", "path" : "./src/images/snake2HeadDown.png"},
+        {"name": "snake2HeadLeft", "path" : "./src/images/snake2HeadLeft.png"},
+        {"name": "snake2HeadRight", "path" : "./src/images/snake2HeadRight.png"},
+        {"name": "snake2Body", "path" : "./src/images/snake2Body.png"},
     ]
 
     loadingLayer = LoadingSample1()
@@ -37,4 +48,4 @@ def main():
     
     LoadManage.load(loadList, loadingLayer.setProgress, next)
 
-init(30, "Greedy Snack", 520, 640, main)
+init(30, "Greedy Snake", 520, 640, main)
