@@ -1,4 +1,4 @@
-from startGame import gameStart
+from playing import gameStart
 
 from pylash.core import stage, init, addChild, KeyCode
 from pylash.loaders import LoadManage
@@ -95,6 +95,7 @@ def p2Choosing(e):
         p2Profile = (p2Profile-1) % len(profileIndex)
         p2Arrow.x = 95 + profileIndex[p2Profile]*165 - p1Arrow.width/2
     elif e.keyCode == KeyCode.KEY_SPACE:
+        p2Profile = profileIndex[p2Profile]
         stage.removeEventListener(KeyboardEvent.KEY_DOWN, p2Choosing)
 
         # add the BGM and Effects buttons
