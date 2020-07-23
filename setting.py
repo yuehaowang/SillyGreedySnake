@@ -14,7 +14,7 @@ p1Profile = 0
 p2Profile = 1
 
 def initSettingPage(data):
-    global settingLayer, dataList, profileIndex, p1Arrow, bgmOff, effectsOff
+    global settingLayer, dataList, profileIndex, p1Arrow
 
     # add the setting layer
     settingLayer = Sprite()
@@ -34,61 +34,18 @@ def initSettingPage(data):
     ]
     for i in range(len(profiles)):
         profiles[i].x = 20 + i*165
-        profiles[i].y = 165
+        profiles[i].y = 175
         settingLayer.addChild(profiles[i])
 
     # add the hintTxt
     hintTxt = TextField()
-    hintTxt.text = "<- and -> for switching the profile, and space for determining"
-    hintTxt.size = 18
+    hintTxt.text = "<- and -> for switching, and space for determining"
+    hintTxt.size = 20
     hintTxt.x = 260-hintTxt.width/2
-    hintTxt.y = 140
+    hintTxt.y = 147.5
     hintTxt.textColor = "#2a5d95"
     hintTxt.font = "Bradley Hand"
     settingLayer.addChild(hintTxt)
-
-    # add the BGM button
-    bgmStyle = Sprite()
-    bgmOn = Bitmap(BitmapData(dataList["bgmOn"]))
-    bgmOff = Bitmap(BitmapData(dataList["off"]))
-    bgmStyle.addChild(bgmOn)
-    bgmStyle.addChild(bgmOff)
-    bgmBtn = Button(bgmStyle, None, None, None)
-    bgmBtn.x = 260-50-bgmStyle.width
-    bgmBtn.y = 500
-    settingLayer.addChild(bgmBtn)
-    bgmBtn.addEventListener(MouseEvent.MOUSE_UP, bgmSwitch)
-
-    # add the effects button
-    effectsStyle = Sprite()
-    effectsOn = Bitmap(BitmapData(dataList["effectsOn"]))
-    effectsOff = Bitmap(BitmapData(dataList["off"]))
-    effectsStyle.addChild(effectsOn)
-    effectsStyle.addChild(effectsOff)
-    effectsBtn = Button(effectsStyle, None, None, None)
-    effectsBtn.x = 260+50
-    effectsBtn.y = 500
-    settingLayer.addChild(effectsBtn)
-    effectsBtn.addEventListener(MouseEvent.MOUSE_UP, effectsSwitch)
-
-    # add button hints
-    bgmTxt = TextField()
-    bgmTxt.text = "BGM"
-    bgmTxt.size = 30
-    bgmTxt.x = 260-50-bgmStyle.width/2-bgmTxt.width/2
-    bgmTxt.y = 590
-    bgmTxt.textColor = "#2a5d95"
-    bgmTxt.font = "Bradley Hand"
-    settingLayer.addChild(bgmTxt)
-
-    effectsTxt = TextField()
-    effectsTxt.text = "Effects"
-    effectsTxt.size = 30
-    effectsTxt.x = 260+50+effectsStyle.width/2-effectsTxt.width/2
-    effectsTxt.y = 590
-    effectsTxt.textColor = "#2a5d95"
-    effectsTxt.font = "Bradley Hand"
-    settingLayer.addChild(effectsTxt)
 
     # p1 choose the profile
     p1 = Sprite()
@@ -130,7 +87,7 @@ def p1Choosing(e):
         p2.addChild(p2Arrow)
 
 def p2Choosing(e):
-    global p2Profile
+    global p2Profile, bgmOff, effectsOff
     if e.keyCode == KeyCode.KEY_RIGHT:
         p2Profile = (p2Profile+1) % len(profileIndex)
         p2Arrow.x = 95 + profileIndex[p2Profile]*165 - p1Arrow.width/2
@@ -140,7 +97,51 @@ def p2Choosing(e):
     elif e.keyCode == KeyCode.KEY_SPACE:
         stage.removeEventListener(KeyboardEvent.KEY_DOWN, p2Choosing)
 
-        # define the state of buttons
+        # add the BGM and Effects buttons
+         # add the BGM button
+        bgmStyle = Sprite()
+        bgmOn = Bitmap(BitmapData(dataList["bgmOn"]))
+        bgmOff = Bitmap(BitmapData(dataList["off"]))
+        bgmStyle.addChild(bgmOn)
+        bgmStyle.addChild(bgmOff)
+        bgmBtn = Button(bgmStyle, None, None, None)
+        bgmBtn.x = 260-50-bgmStyle.width
+        bgmBtn.y = 500
+        settingLayer.addChild(bgmBtn)
+        bgmBtn.addEventListener(MouseEvent.MOUSE_UP, bgmSwitch)
+
+        # add the effects button
+        effectsStyle = Sprite()
+        effectsOn = Bitmap(BitmapData(dataList["effectsOn"]))
+        effectsOff = Bitmap(BitmapData(dataList["off"]))
+        effectsStyle.addChild(effectsOn)
+        effectsStyle.addChild(effectsOff)
+        effectsBtn = Button(effectsStyle, None, None, None)
+        effectsBtn.x = 260+50
+        effectsBtn.y = 500
+        settingLayer.addChild(effectsBtn)
+        effectsBtn.addEventListener(MouseEvent.MOUSE_UP, effectsSwitch)
+
+        # add button hints
+        bgmTxt = TextField()
+        bgmTxt.text = "BGM"
+        bgmTxt.size = 30
+        bgmTxt.x = 260-50-bgmStyle.width/2-bgmTxt.width/2
+        bgmTxt.y = 590
+        bgmTxt.textColor = "#2a5d95"
+        bgmTxt.font = "Bradley Hand"
+        settingLayer.addChild(bgmTxt)
+
+        effectsTxt = TextField()
+        effectsTxt.text = "Effects"
+        effectsTxt.size = 30
+        effectsTxt.x = 260+50+effectsStyle.width/2-effectsTxt.width/2
+        effectsTxt.y = 590
+        effectsTxt.textColor = "#2a5d95"
+        effectsTxt.font = "Bradley Hand"
+        settingLayer.addChild(effectsTxt)
+
+        # add Go button
         normal = Bitmap(BitmapData(dataList["normalGoBtn"]))
         over = Bitmap(BitmapData(dataList["actionGoBtn"]))
         down = Bitmap(BitmapData(dataList["actionGoBtn"]))
@@ -158,7 +159,6 @@ def p2Choosing(e):
             gameStart(dataList)
 
         startBtn.addEventListener(MouseEvent.MOUSE_UP, next)
-
         
 def bgmSwitch(e):
     global bgmPlay
