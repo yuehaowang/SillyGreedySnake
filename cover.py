@@ -8,7 +8,6 @@ from pylash.media import Sound, MediaEvent
 from pylash.ui import LoadingSample1, Button
 
 def initCoverPage(result):
-
     # receive the loaded data
     dataList = result
 
@@ -21,9 +20,9 @@ def initCoverPage(result):
     coverLayer.addChild(coverBg)
 
     # define the state of buttons
-    normal = Bitmap(BitmapData(dataList["normalBtn"]))
-    over = Bitmap(BitmapData(dataList["actionBtn"]))
-    down = Bitmap(BitmapData(dataList["actionBtn"]))
+    normal = Bitmap(BitmapData(dataList["normalStartBtn"]))
+    over = Bitmap(BitmapData(dataList["actionStartBtn"]))
+    down = Bitmap(BitmapData(dataList["actionStartBtn"]))
 
     startBtn = Button(normal, over, down, None)
     startBtn.x = 135
