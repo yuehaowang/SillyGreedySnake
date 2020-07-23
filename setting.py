@@ -156,7 +156,7 @@ def p2Choosing(e):
             settingLayer.remove()
 
             # init cover layer
-            gameStart(dataList)
+            gameStart(dataList, bgmPlay, effectsPlay, p1Profile, p2Profile)
 
         startBtn.addEventListener(MouseEvent.MOUSE_UP, next)
         
@@ -174,8 +174,6 @@ def effectsSwitch(e):
     if (effectsPlay):
         effectsPlay = False
         effectsOff.visible = True
-        print(effectsPlay)
     else:
         effectsPlay = True
         effectsOff.visible = False
-        print(effectsPlay)
