@@ -7,37 +7,19 @@ from pylash.events import MouseEvent, LoopEvent, KeyboardEvent
 from pylash.media import Sound, MediaEvent
 from pylash.ui import LoadingSample1, Button
 
-def main():
+import os
 
-    # save the file paths which need to be loaded
-    loadList = [
-        {"name": "BGM", "path" : "./src/BGM.wav"},
-        {"name": "coverBg", "path" : "./src/images/coverBg.png"},
-        {"name": "normalStartBtn", "path" : "./src/images/normalStartBtn.png"},
-        {"name": "actionStartBtn", "path" : "./src/images/actionStartBtn.png"},
-        {"name": "settingBg", "path" : "./src/images/settingBg.png"},
-        {"name": "profile0", "path" : "./src/images/profile0.png"},
-        {"name": "profile1", "path" : "./src/images/profile1.png"},
-        {"name": "profile2", "path" : "./src/images/profile2.png"},
-        {"name": "bgmOn", "path" : "./src/images/bgmOn.png"},
-        {"name": "effectsOn", "path" : "./src/images/effectsOn.png"},
-        {"name": "off", "path" : "./src/images/off.png"},
-        {"name": "p1Arrow", "path" : "./src/images/p1Arrow.png"},
-        {"name": "p2Arrow", "path" : "./src/images/p2Arrow.png"},
-        {"name": "normalGoBtn", "path" : "./src/images/normalGoBtn.png"},
-        {"name": "actionGoBtn", "path" : "./src/images/actionGoBtn.png"},
-        {"name": "playingBg", "path" : "./src/images/playingBg.png"},
-        {"name": "snake1HeadUp", "path" : "./src/images/snake1HeadUp.png"},
-        {"name": "snake1HeadDown", "path" : "./src/images/snake1HeadDown.png"},
-        {"name": "snake1HeadLeft", "path" : "./src/images/snake1HeadLeft.png"},
-        {"name": "snake1HeadRight", "path" : "./src/images/snake1HeadRight.png"},
-        {"name": "snake1Body", "path" : "./src/images/snake1Body.png"},
-        {"name": "snake2HeadUp", "path" : "./src/images/snake2HeadUp.png"},
-        {"name": "snake2HeadDown", "path" : "./src/images/snake2HeadDown.png"},
-        {"name": "snake2HeadLeft", "path" : "./src/images/snake2HeadLeft.png"},
-        {"name": "snake2HeadRight", "path" : "./src/images/snake2HeadRight.png"},
-        {"name": "snake2Body", "path" : "./src/images/snake2Body.png"},
-    ]
+def main():
+    loadList = []
+    for root, dirs, files in os.walk("./src/images/"):
+        for filename in files:
+            if filename.split(".")[1] == "png":
+                loadList.append({"name":filename.split(".")[0], "path": root+filename})
+
+    for root, dirs, files in os.walk("./src/"):
+        for filename in files:
+            if filename.split(".")[1] == "wav":
+                loadList.append({"name":filename.split(".")[0], "path": root+filename})
 
     loadingLayer = LoadingSample1()
     addChild(loadingLayer)
