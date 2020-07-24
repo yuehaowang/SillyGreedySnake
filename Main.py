@@ -11,6 +11,7 @@ def main():
 
     # save the file paths which need to be loaded
     loadList = [
+        {"name": "BGM", "path" : "./src/BGM.wav"},
         {"name": "coverBg", "path" : "./src/images/coverBg.png"},
         {"name": "normalStartBtn", "path" : "./src/images/normalStartBtn.png"},
         {"name": "actionStartBtn", "path" : "./src/images/actionStartBtn.png"},
