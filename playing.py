@@ -1,3 +1,5 @@
+import random
+
 from pylash.core import stage, init, addChild, KeyCode
 from pylash.loaders import LoadManage
 from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField, TextFormatWeight
@@ -9,6 +11,8 @@ score1 = 1
 score2 = 0
 
 gameBoard = []
+candies = {}
+
 for i in range(50):
     gameBoard.append([])
     for j in range(50):
@@ -26,17 +30,21 @@ class snake(Sprite):
         self.foodNumber = 0
         self.head = {
             "Up" : Bitmap(BitmapData(dataList[self.snakeKind+"HeadUp"])),
-            "Down" : Bitmap(BitmapData(dataList[self.snakeKind+"HeadUp"])),
+            "Down" : Bitmap(BitmapData(dataList[self.snakeKind+"HeadDown"])),
             "Left" : Bitmap(BitmapData(dataList[self.snakeKind+"HeadLeft"])),
             "Right" : Bitmap(BitmapData(dataList[self.snakeKind+"HeadRight"]))
         }
+        for i in self.head:
+            playingLayer.addChild(self.head[i])
+            self.head[i].visible = False
 
         self.items = [self.head[self.direction]]
         self.items[0].x = self.startX
         self.items[0].y = self.startY
+        self.items[0].visible = True
         playingLayer.addChild(self.items[0])
         if (startX/10-1 >= 0) and (startY/10-13 >= 0):
-            gameBoard[int(startY/10-13)][int(startX/10-1)] = snakeKind
+            gameBoard[int(startY/10-13)][int(startX/10-1)] = "head"
 
         if self.direction == "Up":
             for i in range(5):
@@ -62,24 +70,37 @@ class snake(Sprite):
         if (row >= 0) and (col >= 0):
             gameBoard[row][col] = self.snakeKind
     
-    # def move(self):
-    #     # head style
-    #     self.items[0] = self.head[self.direction]
+    def move(self):
+        # head style
+        lastHead = self.items[0]
+        lastHead.visible = False
+        self.items[0] = self.head[self.direction]
+        self.items[0].x = lastHead.x
+        self.items[0].y = lastHead.y
+        self.items[0].visible = True
         
-    #     if self.direction == "Up":
-    #         pass
-    #     elif self.direction == "Down":
-    #         pass
-    #     elif self.direction == "Left":
-    #         pass
-    #     elif self.direction == "Right":
-    #         pass
+        if self.direction == "Up":
+            pass
+        elif self.direction == "Down":
+            pass
+        elif self.direction == "Left":
+            pass
+        elif self.direction == "Right":
+            pass
     
-    # def analyze(self):
-    #     pass
+    def analyze(self):
+        return "normal"
 
     def loop(self):
-        print(self.snakeKind + " " + self.speed)
+        state = self.analyze()
+        if state == "normal":
+            self.move()
+        elif state == "meetCandy":
+            pass
+        elif (state == "meetHead") or (state == "meetBody") or (state == "meetWall"):
+            gameOver(state, self.snakeKind)
+
+        
 
 
 
@@ -110,7 +131,7 @@ def gameStart(data, bgmPlay, effectsPlay, p1Profile, p2Profile):
     profile2.y = 20
     profile2.width = 100
     profile2.height = 100
-    playingLayer.addChild(profile2)# display the scores
+    playingLayer.addChild(profile2) # display the scores
     colon = TextField()
     colon.text = ":"
     colon.size = 50
@@ -147,44 +168,46 @@ def gameStart(data, bgmPlay, effectsPlay, p1Profile, p2Profile):
     snake1 = snake("snake1", 60, 180, "Right")
     snake2 = snake("snake2", 450, 570, "Left")
 
-    # stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown)
+    stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown)
     stage.addEventListener(KeyboardEvent.KEY_UP, keyUp)
     playingLayer.addEventListener(LoopEvent.ENTER_FRAME, loop)
 
-# def keyDown(e):
-#     print("KeyDown")
-#     if e.keyCode == KeyCode.KEY_W:
-#         snake1.direction = "Up"
-#         snake1.speed = 2
-#         print("w")
-#     elif e.keyCode == KeyCode.KEY_S:
-#         snake1.direction = "Down"
-#         snake1.speed = 2
-#         print("s")
-#     elif e.keyCode == KeyCode.KEY_A:
-#         snake1.direction = "Left"
-#         snake1.speed = 2
-#         print("a")
-#     elif e.keyCode == KeyCode.KEY_D:
-#         snake1.direction = "Right"
-#         snake1.speed = 2
-#         print("d")
-#     elif e.keyCode == KeyCode.KEY_I:
-#         snake2.direction = "Up"
-#         snake2.speed = 2
-#         print("i")
-#     elif e.keyCode == KeyCode.KEY_K:
-#         snake2.direction = "Down"
-#         snake2.speed = 2
-#         print("k")
-#     elif e.keyCode == KeyCode.KEY_J:
-#         snake2.direction = "Left"
-#         snake2.speed = 2
-#         print("j")
-#     elif e.keyCode == KeyCode.KEY_L:
-#         snake2.direction = "Right"
-#         snake2.speed = 2
-#         print("l")
+def keyDown(e):
+    print("KeyDown")
+    if e.keyCode == KeyCode.KEY_W:
+        if snake1.direction != "Down":
+            snake1.direction = "Up"
+            snake1.speed = 2 
+    elif e.keyCode == KeyCode.KEY_S:
+        if snake1.direction != "Up":
+            snake1.direction = "Down"
+            print("Down")
+            snake1.speed = 2
+    elif e.keyCode == KeyCode.KEY_A:
+        if snake1.direction != "Right":
+            snake1.direction = "Left"
+            snake1.speed = 2
+    elif e.keyCode == KeyCode.KEY_D:
+        if snake1.direction != "Left":
+            snake1.direction = "Right"
+            snake1.speed = 2
+    elif e.keyCode == KeyCode.KEY_I:
+        if snake2.direction != "Down":
+            snake2.direction = "Up"
+            snake2.speed = 2
+    elif e.keyCode == KeyCode.KEY_K:
+        if snake2.direction != "Up":
+            snake2.direction = "Down"
+            print("Down")
+            snake2.speed = 2
+    elif e.keyCode == KeyCode.KEY_J:
+        if snake2.direction != "Right":
+            snake2.direction = "Left"
+            snake2.speed = 2
+    elif e.keyCode == KeyCode.KEY_L:
+        if snake2.direction != "Left":
+            snake2.direction = "Right"
+            snake2.speed = 2
 
 def keyUp(e):
     print("KeyUp")
@@ -193,14 +216,36 @@ def keyUp(e):
     elif (e.keyCode == KeyCode.KEY_I) or (e.keyCode == KeyCode.KEY_K) or (e.keyCode == KeyCode.KEY_J) or (e.keyCode == KeyCode.KEY_L):
         snake2.speed = 1
 
-    
 def loop(e):
-    if snake1 == 2:
-        print("snake1 == 2")
-    if snake2 == 2:
-        print("snake2 == 2")
-    # snake1.loop()
-    # snake2.loop()
+    generate()
+    snake1.loop()
+    snake2.loop()
 
+def generate():
+    global candies
+    while (len(candies)/(2500-len(snake1.items)-len(snake2.items)) < 0.05):
+        row = random.randint(0, 49)
+        col = random.randint(0, 49)
 
+        if (gameBoard[row][col] == None):
+            gameBoard[row][col] = "candy"
+            candyKind = random.randint(0,3)
+            newCandy = Bitmap(BitmapData(dataList["candy%s" % candyKind]))
+            newCandy.x = 10 + col*10
+            newCandy.y = 130 + row*10
+            playingLayer.addChild(newCandy)
+            candies[str(row)+"_"+str(col)] = newCandy
 
+def gameOver(overKind, snakeKind):
+    if overKind == "meetHead":
+        if score1 == score2:
+            pass # both lost
+        elif score1 > score2:
+            pass # p1 won
+        elif score1 < score2:
+            pass # p2 won
+    elif (overKind == "meetBody") or (overKind == "meetWall"):
+        if snakeKind == "snake1":
+            pass # p1 lost
+        elif snakeKind == "snake2":
+            pass # p2 lost
