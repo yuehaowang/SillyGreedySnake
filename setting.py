@@ -14,7 +14,12 @@ p1Profile = 0
 p2Profile = 1
 
 def initSettingPage(data):
-    global settingLayer, dataList, profileIndex, p1Arrow
+    global settingLayer, dataList, profileIndex, p1Arrow, BGM
+    dataList = data
+
+    # create BGM
+    BGM = Sound(dataList["BGM"])
+    BGM.loopCount = Sound.LOOP_FOREVER
 
     # add the setting layer
     settingLayer = Sprite()
@@ -98,8 +103,7 @@ def p2Choosing(e):
         p2Profile = profileIndex[p2Profile]
         stage.removeEventListener(KeyboardEvent.KEY_DOWN, p2Choosing)
 
-        # add the BGM and Effects buttons
-         # add the BGM button
+        # add the BGM button
         bgmStyle = Sprite()
         bgmOn = Bitmap(BitmapData(dataList["bgmOn"]))
         bgmOff = Bitmap(BitmapData(dataList["off"]))
@@ -162,13 +166,15 @@ def p2Choosing(e):
         startBtn.addEventListener(MouseEvent.MOUSE_UP, next)
         
 def bgmSwitch(e):
-    global bgmPlay
+    global bgmPlay, BGM
     if (bgmPlay):
         bgmPlay = False
         bgmOff.visible = True
+        BGM.stop()
     else:
         bgmPlay = True
         bgmOff.visible = False
+        BGM.play()
 
 def effectsSwitch(e):
     global effectsPlay
