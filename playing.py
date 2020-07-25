@@ -22,7 +22,6 @@ class snake(Sprite):
     def __init__(self, snakeKind, startX, startY, direction):
         super(snake, self).__init__()
         self.snakeKind = snakeKind
-        print("**************** : " + snakeKind)
         self.direction = direction
         self.startX = startX
         self.startY = startY
@@ -66,9 +65,6 @@ class snake(Sprite):
         playingLayer.addChild(item)
         self.items.append({"row":y/10-13, "col":x/10-1, "item":item}) # the row and col is wrt the gameBoard
         if (y/10-13 >= 0) and (x/10-1 >= 0):
-            print("------")
-            print("row: " + str(y/10-13))
-            print("col: " + str(x/10-1))
             gameBoard[int(y/10-13 >= 0)][int(x/10-1 >= 0)] = self.snakeKind
     
     def move(self):
@@ -81,93 +77,52 @@ class snake(Sprite):
         self.items[0]["item"].visible = True
         
         for i in range(len(self.items)-1, -1, -1):
-            if (int(self.items[i]["row"]) > 49):
-                pass
-            elif (int(self.items[i]["col"]) > 49):
-                pass
-            elif (int(self.items[i]["row"]) < 0):
-                pass
-            elif (int(self.items[i]["col"]) < 0):
-                pass
+            # clear gameBoard
+            gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = None
+            if (i - self.speed >= 0):
+                # update images' position
+                self.items[i]["item"].x = self.items[i-self.speed]["item"].x
+                self.items[i]["item"].y = self.items[i-self.speed]["item"].y
+                # update the dictionary's row and col
+                self.items[i]["row"] = self.items[i-self.speed]["row"]
+                self.items[i]["col"] = self.items[i-self.speed]["col"]
             else:
-                gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = None
-                if (i - self.speed >= 0):
+                if self.direction == "Up":
                     # update images' position
-                    self.items[i]["item"].x = self.items[i-self.speed]["item"].x
-                    self.items[i]["item"].y = self.items[i-self.speed]["item"].y
+                    self.items[i]["item"].x = self.items[0]["item"].x
+                    self.items[i]["item"].y = self.items[0]["item"].y - (self.speed-i) * 10
                     # update the dictionary's row and col
-                    self.items[i]["row"] = self.items[i-self.speed]["row"]
-                    self.items[i]["col"] = self.items[i-self.speed]["col"]
-                else:
-                    if self.direction == "Up":
-                        # update images' position
-                        self.items[i]["item"].x = self.items[0]["item"].x
-                        self.items[i]["item"].y = self.items[0]["item"].y - (self.speed-i) * 10
-                        # update the dictionary's row and col
-                        self.items[i]["col"] = self.items[0]["col"]
-                        self.items[i]["row"] = self.items[0]["row"] - (self.speed-i)
-                    elif self.direction == "Down":
-                        # update images' position
-                        self.items[i]["item"].x = self.items[0]["item"].x
-                        self.items[i]["item"].y = self.items[0]["item"].y + (self.speed-i) * 10
-                        # update the dictionary's row and col
-                        self.items[i]["col"] = self.items[0]["col"]
-                        self.items[i]["row"] = self.items[0]["row"] + (self.speed-i)
-                    elif self.direction == "Left":
-                        # update images' position
-                        self.items[i]["item"].x = self.items[0]["item"].x - (self.speed-i) * 10
-                        self.items[i]["item"].y = self.items[0]["item"].y
-                        # update the dictionary's row and col
-                        self.items[i]["col"] = self.items[0]["col"] - (self.speed-i)
-                        self.items[i]["row"] = self.items[0]["row"]
-                    elif self.direction == "Right":
-                        # update images' position
-                        self.items[i]["item"].x = self.items[0]["item"].x + (self.speed-i) * 10
-                        self.items[i]["item"].y = self.items[0]["item"].y
-                        # update the dictionary's row and col
-                        self.items[i]["col"] = self.items[0]["col"] + (self.speed-i)
-                        self.items[i]["col"] = self.items[0]["col"]
-                    # clear the gameBoard
-                    if (i == 0):
-                        gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = "head"
-                    else:
-                        gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = self.snakeKind
-            
-        
-    def loop(self):
-        for i in range(self.speed - 1):
-            if self.direction == "Up":
-                row = self.items[0]["row"]-1-i
-                col = self.items[0]["col"]
-            elif self.direction == "Down":
-                row = self.items[0]["row"]+1+i
-                col = self.items[0]["col"]
-            elif self.direction == "Left":
-                row = self.items[0]["row"]
-                col = self.items[0]["col"]-1-i
-            elif self.direction == "Right":
-                row = self.items[0]["row"]
-                col = self.items[0]["col"]+1+i
-
-            row = int(row)
-            col = int(col)
-            if ((row < 0 or row > 49) or (col < 0 or col > 49)):
-                gameOver("meetWall", self.snakeKind)
-            elif (gameBoard[row][col] == "head"):
-                gameOver("meetHead", self.snakeKind)
-            elif (self.snakeKind == "snake1" and gameBoard[row][col] == "snake2") or  (self.snakeKind == "snake2" and gameBoard[row][col] == "snake1"):
-                gameOver("meetBody", self.snakeKind)
-            elif (gameBoard[row][col] == "candy"):
-                pass # eat candy
-        self.move()    
-
+                    self.items[i]["col"] = self.items[0]["col"]
+                    self.items[i]["row"] = self.items[0]["row"] - (self.speed-i)
+                elif self.direction == "Down":
+                    # update images' position
+                    self.items[i]["item"].x = self.items[0]["item"].x
+                    self.items[i]["item"].y = self.items[0]["item"].y + (self.speed-i) * 10
+                    # update the dictionary's row and col
+                    self.items[i]["col"] = self.items[0]["col"]
+                    self.items[i]["row"] = self.items[0]["row"] + (self.speed-i)
+                elif self.direction == "Left":
+                    # update images' position
+                    self.items[i]["item"].x = self.items[0]["item"].x - (self.speed-i) * 10
+                    self.items[i]["item"].y = self.items[0]["item"].y
+                    # update the dictionary's row and col
+                    self.items[i]["col"] = self.items[0]["col"] - (self.speed-i)
+                    self.items[i]["row"] = self.items[0]["row"]
+                elif self.direction == "Right":
+                    # update images' position
+                    self.items[i]["item"].x = self.items[0]["item"].x + (self.speed-i) * 10
+                    self.items[i]["item"].y = self.items[0]["item"].y
+                    # update the dictionary's row and col
+                    self.items[i]["col"] = self.items[0]["col"] + (self.speed-i)
+                    self.items[i]["col"] = self.items[0]["col"]
+            # Update the gameBoard
+            if (i == 0):
+                gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = "head"
+            else:
+                gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = self.snakeKind
 
     def growth(self):
         pass
-
-        
-
-        
 
 
 
@@ -277,8 +232,72 @@ def loop(e):
     minRatio = 0.02
     while (len(candies)/(2500-len(snake1.items)-len(snake2.items)) < minRatio):
         generate(0.05)
-    snake1.loop()
-    snake2.loop()
+
+    snakeLoop(snake1, snake2)
+    snakeLoop(snake2, snake1)
+
+def snakeLoop(s1, s2):
+    normal = True
+
+    # compute the next position of s2
+    nextS2Position = {}
+    for i in range(len(s2.items)-1, -1, -1):
+        if (i - s2.speed >= 0):
+            # update the dictionary's row and col
+            row = s2.items[i-s2.speed]["row"]
+            col = s2.items[i-s2.speed]["col"]
+        else:
+            if s2.direction == "Up":
+                # update the dictionary's row and col
+                col = s2.items[0]["col"]
+                row = s2.items[0]["row"] - (s2.speed-i)
+            elif s2.direction == "Down":
+                # update the dictionary's row and col
+                col = s2.items[0]["col"]
+                row = s2.items[0]["row"] + (s2.speed-i)
+            elif s2.direction == "Left":
+                # update the dictionary's row and col
+                col = s2.items[0]["col"] - (s2.speed-i)
+                row = s2.items[0]["row"]
+            elif s2.direction == "Right":
+                # update the dictionary's row and col
+                col = s2.items[0]["col"] + (s2.speed-i)
+                row = s2.items[0]["col"]
+        col = int(col)
+        row = int(row)
+        if (i == 0):
+            nextS2Position[str(row)+"_"+str(col)] = "head"
+        else:
+            nextS2Position[str(row)+"_"+str(col)] = "body"
+
+    # check
+    for i in range(s1.speed):
+        if s1.direction == "Up":
+            row = s1.items[0]["row"]-1-i
+            col = s1.items[0]["col"]
+        elif s1.direction == "Down":
+            row = s1.items[0]["row"]+1+i
+            col = s1.items[0]["col"]
+        elif s1.direction == "Left":
+            row = s1.items[0]["row"]
+            col = s1.items[0]["col"]-1-i
+        elif s1.direction == "Right":
+            row = s1.items[0]["row"]
+            col = s1.items[0]["col"]+1+i
+
+        row = int(row)
+        col = int(col)
+        if ((row < 0 or row > 49) or (col < 0 or col > 49)):
+            gameOver("wall", s1.snakeKind, nextS2Position)
+            normal = False
+        elif (str(row)+"_"+str(col) in nextS2Position):
+            gameOver(nextS2Position[str(row)+"_"+str(col)], s1.snakeKind, nextS2Position)
+            normal = False
+        elif (gameBoard[row][col] == "candy"):
+            pass # eat candy
+    if normal:
+        s1.move()    
+
 
 def generate(ratio):
     global candies
@@ -295,16 +314,18 @@ def generate(ratio):
             playingLayer.addChild(newCandy)
             candies[str(row)+"_"+str(col)] = newCandy
 
-def gameOver(overKind, snakeKind):
-    if overKind == "meetHead":
+def gameOver(overKind, snakeKind, nextS2Position):
+    playingLayer.removeAllEventListeners()
+    if overKind == "head":
         if score1 == score2:
             print("both lost")
         elif score1 > score2:
             print("p1 won")
         elif score1 < score2:
             print("p2 won")
-    elif (overKind == "meetBody") or (overKind == "meetWall"):
+    elif (overKind == "body") or (overKind == "wall"):
         if snakeKind == "snake1":
             print("p2 won")
         elif snakeKind == "snake2":
             print("p1 won")
+
