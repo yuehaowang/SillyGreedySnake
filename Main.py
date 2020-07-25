@@ -31,4 +31,4 @@ def main():
     
     LoadManage.load(loadList, loadingLayer.setProgress, next)
 
-init(30, "Greedy Snake", 520, 640, main)
+init(250, "Greedy Snake", 520, 640, main)
