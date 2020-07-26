@@ -1,10 +1,8 @@
 from cover import initCoverPage
 
-from pylash.core import stage, init, addChild, KeyCode
+from pylash.core import init, addChild
 from pylash.loaders import LoadManage
-from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField, TextFormatWeight
-from pylash.events import MouseEvent, LoopEvent, KeyboardEvent
-from pylash.media import Sound, MediaEvent
+from pylash.events import MouseEvent
 from pylash.ui import LoadingSample1, Button
 
 import os
