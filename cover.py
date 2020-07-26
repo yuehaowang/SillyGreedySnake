@@ -1,7 +1,7 @@
 from setting import initSettingPage
 
-from pylash.core import init, addChild
-from pylash.display import Sprite, BitmapData, Bitmap, TextField
+from pylash.core import addChild
+from pylash.display import Sprite, BitmapData, Bitmap
 from pylash.events import MouseEvent
 from pylash.ui import Button
 
