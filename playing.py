@@ -64,7 +64,7 @@ class snake(Sprite):
         playingLayer.addChild(item)
         self.items.append({"row":int(y/10)-13, "col":int(x/10)-1, "item":item}) # the row and col is wrt the gameBoard
         if (y/10-13 >= 0) and (x/10-1 >= 0):
-            gameBoard[int(y/10-13 >= 0)][int(x/10-1 >= 0)] = self.snakeKind
+            gameBoard[int(y/10-13)][int(x/10-1)] = self.snakeKind
     
     def move(self):
         # head style
@@ -128,6 +128,9 @@ class snake(Sprite):
                     self.items[i]["row"] = self.items[0]["row"]
             # Update the gameBoard
             if (i == 0):
+                if (int(self.items[i]["row"]) < 0 or int(self.items[i]["row"]) > 49) or (int(self.items[i]["col"]) < 0 or int(self.items[i]["col"]) > 49):
+                    print("speed:", self.speed)
+                    print("row and col:", self.items[i]["row"], self.items[i]["col"])
                 gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = "head"
                 if self.direction == "Up":
                     nextHeadRow = self.items[0]["row"] - 1
@@ -151,17 +154,23 @@ class snake(Sprite):
 
 
 def gameStart(data, bgmPlay, effectsPlay, p1Profile, p2Profile):
-    global dataList, playingLayer, effectsOn, gameOverEffect, eatCandyEffect
+    global dataList, playingLayer, effectsOn, gameOverEffect, eatCandyEffects, moveEffect, btnEffect
 
     effectsOn = effectsPlay
     # receive the loaded data
     dataList = data
 
     gameOverEffect = Sound(dataList["gameOverEffect"])
-    gameOverEffect.loopCount = 1
 
-    eatCandyEffect = Sound(dataList["eatCandyEffect"])
-    eatCandyEffect.loopCount = 1
+    eatCandyEffects = [Sound(dataList["eatCandyEffect1"]),Sound(dataList["eatCandyEffect2"]),Sound(dataList["eatCandyEffect3"])]
+    for eatCandyEffect in eatCandyEffects:
+        eatCandyEffect.loopCount = 1
+
+    moveEffect = Sound(dataList["moveEffect"])
+    moveEffect.loopCount = Sound.LOOP_FOREVER
+
+    btnEffect = Sound(dataList["btnEffect"])
+    btnEffect.loopCount = 1
 
     # create the playing layer
     playingLayer = Sprite()
@@ -228,42 +237,52 @@ def gameStart(data, bgmPlay, effectsPlay, p1Profile, p2Profile):
     stage.addEventListener(KeyboardEvent.KEY_UP, keyUp)
     playingLayer.addEventListener(LoopEvent.ENTER_FRAME, loop)
 
-    generate(0.005)
+    generate(0.05)
 
 def keyDown(e):
     if e.keyCode == KeyCode.KEY_W:
         snake1.direction = "Up"
         snake1.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_S:
         snake1.direction = "Down"
         snake1.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_A:
         snake1.direction = "Left"
         snake1.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_D:
         snake1.direction = "Right"
         snake1.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_I:
         snake2.direction = "Up"
         snake2.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_K:
         snake2.direction = "Down"
         snake2.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_J:
         snake2.direction = "Left"
         snake2.speed = 3
+        moveEffect.play()
     elif e.keyCode == KeyCode.KEY_L:
         snake2.direction = "Right"
         snake2.speed = 3
+        moveEffect.play()
 
 def keyUp(e):
     if (e.keyCode == KeyCode.KEY_W) or (e.keyCode == KeyCode.KEY_S) or (e.keyCode == KeyCode.KEY_A) or (e.keyCode == KeyCode.KEY_D):
         snake1.speed = 1
+        moveEffect.stop()
     elif (e.keyCode == KeyCode.KEY_I) or (e.keyCode == KeyCode.KEY_K) or (e.keyCode == KeyCode.KEY_J) or (e.keyCode == KeyCode.KEY_L):
         snake2.speed = 1
+        moveEffect.stop()
 
 def loop(e):
-    minRatio = 0.025
+    minRatio = 0.03
     while (len(candies)/(2500-len(snake1.items)-len(snake2.items)) < minRatio):
         generate(0.05)
 
@@ -348,8 +367,6 @@ def snakeLoop(s1, s2):
                 else:
                     records.append(["body", {"snakeKind":s1.snakeKind, "snakeToMove":[s1, s2], "point":(row, col)}])
         elif (gameBoard[row][col] == "candy"):
-            if effectsOn:
-                eatCandyEffect.play()
             s1.eatenCandies += 1 
             s1.score += 1
             if s1 == snake1:
@@ -364,7 +381,10 @@ def snakeLoop(s1, s2):
             candies[str(row)+"_"+str(col)].remove()
             gameBoard[row][col] = None
             del candies[str(row)+"_"+str(col)]
-        
+
+    if effectsOn and (s1.eatenCandies != 0):
+        eatCandyEffects[s1.eatenCandies-1].play()
+
     if normal:
         s1.move()
     elif snakeCollision:
@@ -470,6 +490,9 @@ def gameOver(overKind, overInfo):
     normal = Bitmap(BitmapData(dataList["normalLeaveBtn"]))
     over = Bitmap(BitmapData(dataList["actionLeaveBtn"]))
     down = Bitmap(BitmapData(dataList["actionLeaveBtn"]))
+    normal.alpha = 0.5
+    over.alpha = 0.75
+    down.alpha = 0.75
 
     leaveBtn = Button(normal, over, down, None)
     leaveBtn.x = 135
@@ -477,11 +500,15 @@ def gameOver(overKind, overInfo):
     playingLayer.addChild(leaveBtn)
 
     def next(e):
+        btnEffect.play()
         exit()
         
     leaveBtn.addEventListener(MouseEvent.MOUSE_UP, next)
+    leaveBtn.addEventListener(MouseEvent.MOUSE_DOWN, btnEffectPlay)
 
-
+def btnEffectPlay(e):
+    if effectsOn:
+        btnEffect.play()
         
 
     
