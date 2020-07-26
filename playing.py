@@ -1,7 +1,7 @@
 import random
 
-from pylash.core import stage, init, addChild, KeyCode
-from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField
+from pylash.core import stage, addChild, KeyCode
+from pylash.display import Sprite, BitmapData, Bitmap, TextField
 from pylash.events import MouseEvent, LoopEvent, KeyboardEvent
 from pylash.media import Sound
 from pylash.ui import Button
@@ -456,24 +456,19 @@ def gameOver(overKind, overInfo):
 
 
     # define the state of buttons
-    normal = Bitmap(BitmapData(dataList["normalReplayBtn"]))
-    over = Bitmap(BitmapData(dataList["actionReplayBtn"]))
-    down = Bitmap(BitmapData(dataList["actionReplayBtn"]))
+    normal = Bitmap(BitmapData(dataList["normalLeaveBtn"]))
+    over = Bitmap(BitmapData(dataList["actionLeaveBtn"]))
+    down = Bitmap(BitmapData(dataList["actionLeaveBtn"]))
 
-    replayBtn = Button(normal, over, down, None)
-    replayBtn.x = 135
-    replayBtn.y = 385
-    playingLayer.addChild(replayBtn)
+    leaveBtn = Button(normal, over, down, None)
+    leaveBtn.x = 135
+    leaveBtn.y = 130+250-leaveBtn.height/2
+    playingLayer.addChild(leaveBtn)
 
     def next(e):
-        # remove the contents of cover layer
-        playingLayer.remove()
-
         exit()
-        # init cover layer
         
-
-    replayBtn.addEventListener(MouseEvent.MOUSE_UP, next)
+    leaveBtn.addEventListener(MouseEvent.MOUSE_UP, next)
 
 
         
