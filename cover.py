@@ -1,11 +1,9 @@
 from setting import initSettingPage
 
-from pylash.core import stage, init, addChild, KeyCode
-from pylash.loaders import LoadManage
-from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField, TextFormatWeight
-from pylash.events import MouseEvent, LoopEvent, KeyboardEvent
-from pylash.media import Sound, MediaEvent
-from pylash.ui import LoadingSample1, Button
+from pylash.core import init, addChild
+from pylash.display import Sprite, BitmapData, Bitmap, TextField
+from pylash.events import MouseEvent
+from pylash.ui import Button
 
 def initCoverPage(result):
     # receive the loaded data
