@@ -151,10 +151,17 @@ class snake(Sprite):
 
 
 def gameStart(data, bgmPlay, effectsPlay, p1Profile, p2Profile):
-    global dataList, playingLayer
+    global dataList, playingLayer, effectsOn, gameOverEffect, eatCandyEffect
 
+    effectsOn = effectsPlay
     # receive the loaded data
     dataList = data
+
+    gameOverEffect = Sound(dataList["gameOverEffect"])
+    gameOverEffect.loopCount = 1
+
+    eatCandyEffect = Sound(dataList["eatCandyEffect"])
+    eatCandyEffect.loopCount = 1
 
     # create the playing layer
     playingLayer = Sprite()
@@ -341,6 +348,8 @@ def snakeLoop(s1, s2):
                 else:
                     records.append(["body", {"snakeKind":s1.snakeKind, "snakeToMove":[s1, s2], "point":(row, col)}])
         elif (gameBoard[row][col] == "candy"):
+            if effectsOn:
+                eatCandyEffect.play()
             s1.eatenCandies += 1 
             s1.score += 1
             if s1 == snake1:
@@ -377,6 +386,8 @@ def generate(ratio):
             candies[str(row)+"_"+str(col)] = newCandy
 
 def gameOver(overKind, overInfo):
+    if effectsOn:
+        gameOverEffect.play()
     global gameContinue
     gameContinue = False
     playingLayer.removeAllEventListeners()
