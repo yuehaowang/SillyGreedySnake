@@ -1,11 +1,10 @@
 import random
 
 from pylash.core import stage, init, addChild, KeyCode
-from pylash.loaders import LoadManage
-from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField, TextFormatWeight
+from pylash.display import Sprite, BitmapData, Bitmap, FPS, TextField
 from pylash.events import MouseEvent, LoopEvent, KeyboardEvent
-from pylash.media import Sound, MediaEvent
-from pylash.ui import LoadingSample1, Button
+from pylash.media import Sound
+from pylash.ui import Button
 
 gameBoard = []
 candies = {}
@@ -68,7 +67,6 @@ class snake(Sprite):
             gameBoard[int(y/10-13 >= 0)][int(x/10-1 >= 0)] = self.snakeKind
     
     def move(self):
-        print("71")
         # head style
         lastHead = self.items[0]["item"]
         lastHead.visible = False
@@ -76,7 +74,6 @@ class snake(Sprite):
         self.items[0]["item"].x = lastHead.x
         self.items[0]["item"].y = lastHead.y
         self.items[0]["item"].visible = True
-        print("79")
         # create new bodies
         newBodies = []
         for i in range(self.eatenCandies):
@@ -89,20 +86,12 @@ class snake(Sprite):
             playingLayer.addChild(new["item"])
             gameBoard[new["row"]][new["col"]] = self.snakeKind
         self.eatenCandies = 0
-        print("92")
         # move
-        print("---------------------------")
         for i in range(len(self.items)-1, -1, -1):
             # clear gameBoard
             gameBoard[int(self.items[i]["row"])][int(self.items[i]["col"])] = None
             if (i - self.speed >= 0):
                 # update images' position
-                print('------')
-                print("i: ", i)
-                print("speed: ", self.speed)
-                print("row: ", self.items[i]["row"], "->", self.items[i-self.speed]["row"])
-                print("col: ", self.items[i]["col"], "->", self.items[i-self.speed]["col"])
-
                 self.items[i]["item"].x = self.items[i-self.speed]["item"].x
                 self.items[i]["item"].y = self.items[i-self.speed]["item"].y
                 # update the dictionary's row and col
@@ -158,9 +147,7 @@ class snake(Sprite):
         # add newly grown bodies
         for newbody in newBodies:
             self.items.append(newbody)
-        print("154")
         return (nextHeadRow, nextHeadCol)
-
 
 
 def gameStart(data, bgmPlay, effectsPlay, p1Profile, p2Profile):
@@ -269,7 +256,6 @@ def keyUp(e):
         snake2.speed = 1
 
 def loop(e):
-    print("266")
     minRatio = 0.025
     while (len(candies)/(2500-len(snake1.items)-len(snake2.items)) < minRatio):
         generate(0.05)
@@ -278,14 +264,14 @@ def loop(e):
         snakeLoop(snake1, snake2)
     if gameContinue:
         snakeLoop(snake2, snake1)
-    print("275")
+
 def snakeLoop(s1, s2):
-    normal = True                                                           
-    print("277")
+    normal = True     
+    snakeCollision = False                                                      
     # record the position of s2
     s2Position = []
     # compute the next position of s2
-    nextS2Position = {}
+    s2NextPosition = {}
     for i in range(len(s2.items)-1, -1, -1):
         s2Position.append((s2.items[i]["row"], s2.items[i]["col"]))
 
@@ -313,13 +299,12 @@ def snakeLoop(s1, s2):
         col = int(col)
         row = int(row)
         if (i == 0):
-            nextS2Position[str(row)+"_"+str(col)] = "head"
+            s2NextPosition[str(row)+"_"+str(col)] = "head"
         else:
-            nextS2Position[str(row)+"_"+str(col)] = "body"
-    print("312")
+            s2NextPosition[str(row)+"_"+str(col)] = "body"
+
     # check
-    head = False
-    body = False
+    records = []
     for i in range(s1.speed):
         if s1.direction == "Up":
             row = s1.items[0]["row"]-1-i
@@ -337,14 +322,24 @@ def snakeLoop(s1, s2):
         row = int(row)
         col = int(col)
         if ((row < 0 or row > 49) or (col < 0 or col > 49)):
-            gameOver("wall", s1.snakeKind, s2Position)
             normal = False
-        elif (str(row)+"_"+str(col) in nextS2Position):
-            if nextS2Position[str(row)+"_"+str(col)] == "head":
-                head = True
-            elif nextS2Position[str(row)+"_"+str(col)] == "body":
-                body = True
+            gameOver("wall", {"snakeKind":s1.snakeKind})
+        elif (str(row)+"_"+str(col) in s2NextPosition):
             normal = False
+            snakeCollision = True
+            if s2NextPosition[str(row)+"_"+str(col)] == "head":
+                if (row, col) in s2Position:
+                    records.append(["head", {"snakeKind":s1.snakeKind, "snakeToMove":[s1], "point":(row, col)}])
+                else:
+                    records.append(["head", {"snakeKind":s1.snakeKind, "snakeToMove":[s1, s2], "point":(row, col)}])
+            elif s2NextPosition[str(row)+"_"+str(col)] == "body":
+                if (row, col) in s2Position:
+                    if (s1.direction == s2.direction):
+                        records.append(["bodySameDirection", {"snakeKind":s1.snakeKind, "snakeToMove":[s1], "s2Position":s2Position}])
+                    else:
+                        records.append(["body", {"snakeKind":s1.snakeKind, "snakeToMove":[s1], "point":(row, col)}])
+                else:
+                    records.append(["body", {"snakeKind":s1.snakeKind, "snakeToMove":[s1, s2], "point":(row, col)}])
         elif (gameBoard[row][col] == "candy"):
             s1.eatenCandies += 1 
             s1.score += 1
@@ -360,17 +355,12 @@ def snakeLoop(s1, s2):
             candies[str(row)+"_"+str(col)].remove()
             gameBoard[row][col] = None
             del candies[str(row)+"_"+str(col)]
-    print("356") 
         
-    if head:
-        gameOver("head", s1.snakeKind, s2Position)
-    elif body:
-        gameOver("body", s1.snakeKind, s2Position)
-    elif normal:
+    if normal:
         s1.move()
+    elif snakeCollision:
+        gameOver(records[-1][0], records[-1][-1])
     
-    print("365")
-
 def generate(ratio):
     global candies
     while (len(candies)/(2500-len(snake1.items)-len(snake2.items)) < ratio):
@@ -386,33 +376,106 @@ def generate(ratio):
             playingLayer.addChild(newCandy)
             candies[str(row)+"_"+str(col)] = newCandy
 
-def gameOver(overKind, snakeKind, s2Position):
+def gameOver(overKind, overInfo):
     global gameContinue
     gameContinue = False
     playingLayer.removeAllEventListeners()
-    if overKind == "head":
-        if snake1.score == snake2.score:
-            print("both lost")
-        elif snake1.score > snake2.score:
-            print("2333p1 won")
-        elif snake1.score < snake2.score:
-            print("abc p2 won")
-    elif (overKind == "body") or (overKind == "wall"):
-        if snakeKind == "snake1":
-            snake = snake1
-            print("134 p2 won")
-        elif snakeKind == "snake2":
-            print("189 p1 won")
-    if snakeKind == "snake1":
+    if overInfo["snakeKind"] == "snake1":
         snake = snake1
     else:
         snake = snake2
 
-    snake.speed = 1
-    snake.eatenCandies = 0
-    while not((snake.items[0]["row"], snake.items[0]["col"]) in s2Position):
-        if (snake.items[0]["row"] <= 0 or snake.items[0]["row"] >= 49) or (snake.items[0]["col"] <= 0 or snake.items[0]["col"] >= 49):
-            break
-        nextHead = snake.move()
-        if nextHead in s2Position:
-            break
+
+    # adjust the positions
+    winner = ["P1"]
+    snake1.speed = 1
+    snake2.speed = 1
+    snake1.eatenCandies = 0
+    snake2.eatenCandies = 0
+    if (overKind == "wall"):
+        if overInfo["snakeKind"] == "snake1":
+            winner[0] = "P2"
+        while True:
+
+            if (snake.items[0]["row"] <= 0 or snake.items[0]["row"] >= 49) or (snake.items[0]["col"] <= 0 or snake.items[0]["col"] >= 49):
+                break
+            else:
+                snake.move()
+    elif overKind == "head":
+        if snake1.score == snake2.score:
+            winner = []
+        elif snake1.score < snake2.score:
+            winner[0] = "P2"
+
+        for s in overInfo["snakeToMove"]:
+            while (s.items[0]["row"], s.items[0]["col"]) != overInfo["point"]:
+                s.move()
+    elif (overKind == "body"):
+        if overInfo["snakeKind"] == "snake1":
+            winner[0] = "P2"
+
+        for s in overInfo["snakeToMove"]:
+            while (s.items[0]["row"], s.items[0]["col"]) != overInfo["point"]:
+                s.move()
+    elif (overKind == "bodySameDirection"):
+        if overInfo["snakeKind"] == "snake1":
+            winner[0] = "P2"
+
+        for s in overInfo["snakeToMove"]:
+            while not((s.items[0]["row"], s.items[0]["col"]) in overInfo["s2Position"]):
+                s.move()
+
+    lastHead = snake.items[0]["item"]
+    lastHead.visible = False
+    newHead = Bitmap(BitmapData(dataList[snake.snakeKind+"Head"+snake.direction]))
+    newHead.x = lastHead.x
+    newHead.y = lastHead.y
+    playingLayer.addChild(newHead)
+
+
+    # display the faces
+    p1Face = TextField()
+    playingLayer.addChild(p1Face)
+    if "P1" in winner:
+        p1Face.text = "😂"
+    else:
+        p1Face.text = "😭"
+    p1Face.size = 50
+    p1Face.x = 20 + 50 - p1Face.width/2
+    p1Face.y = 20 + 50 - p1Face.height/2
+
+    p2Face = TextField()
+    playingLayer.addChild(p2Face)
+    if "P2" in winner:
+        p2Face.text = "😂"
+    else:
+        p2Face.text = "😭"
+    p2Face.size = 50
+    p2Face.x = 400 + 50 - p2Face.width/2
+    p2Face.y = 20 + 50 - p2Face.height/2
+
+
+    # define the state of buttons
+    normal = Bitmap(BitmapData(dataList["normalReplayBtn"]))
+    over = Bitmap(BitmapData(dataList["actionReplayBtn"]))
+    down = Bitmap(BitmapData(dataList["actionReplayBtn"]))
+
+    replayBtn = Button(normal, over, down, None)
+    replayBtn.x = 135
+    replayBtn.y = 385
+    playingLayer.addChild(replayBtn)
+
+    def next(e):
+        # remove the contents of cover layer
+        playingLayer.remove()
+
+        exit()
+        # init cover layer
+        
+
+    replayBtn.addEventListener(MouseEvent.MOUSE_UP, next)
+
+
+        
+
+    
