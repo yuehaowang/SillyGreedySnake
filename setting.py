@@ -13,12 +13,16 @@ p1Profile = 0
 p2Profile = 1
 
 def initSettingPage(data):
-    global settingLayer, dataList, profileIndex, p1Arrow, BGM
+    global settingLayer, dataList, profileIndex, p1Arrow, BGM, btnEffect
     dataList = data
 
     # create BGM
     BGM = Sound(dataList["BGM"])
     BGM.loopCount = Sound.LOOP_FOREVER
+
+    # create Btn effect
+    btnEffect = Sound(dataList["btnEffect"])
+    btnEffect.loopCount = 1
 
     # add the setting layer
     settingLayer = Sprite()
@@ -113,6 +117,7 @@ def p2Choosing(e):
         bgmBtn.y = 500
         settingLayer.addChild(bgmBtn)
         bgmBtn.addEventListener(MouseEvent.MOUSE_UP, bgmSwitch)
+        bgmBtn.addEventListener(MouseEvent.MOUSE_DOWN, btnEffectPlay)
 
         # add the effects button
         effectsStyle = Sprite()
@@ -125,6 +130,7 @@ def p2Choosing(e):
         effectsBtn.y = 500
         settingLayer.addChild(effectsBtn)
         effectsBtn.addEventListener(MouseEvent.MOUSE_UP, effectsSwitch)
+        effectsBtn.addEventListener(MouseEvent.MOUSE_DOWN, btnEffectPlay)
 
         # add button hints
         bgmTxt = TextField()
@@ -163,10 +169,11 @@ def p2Choosing(e):
             gameStart(dataList, bgmPlay, effectsPlay, p1Profile, p2Profile)
 
         startBtn.addEventListener(MouseEvent.MOUSE_UP, next)
+        startBtn.addEventListener(MouseEvent.MOUSE_DOWN, btnEffectPlay)
         
 def bgmSwitch(e):
     global bgmPlay, BGM
-    if (bgmPlay):
+    if bgmPlay:
         bgmPlay = False
         bgmOff.visible = True
         BGM.stop()
@@ -177,9 +184,15 @@ def bgmSwitch(e):
 
 def effectsSwitch(e):
     global effectsPlay
-    if (effectsPlay):
+    if effectsPlay:
         effectsPlay = False
         effectsOff.visible = True
     else:
         effectsPlay = True
         effectsOff.visible = False
+play = 0
+def btnEffectPlay(e):
+    global effectsPlay, play
+    if effectsPlay:
+        play += 1
+        btnEffect.play()
