@@ -1,2 +1,3 @@
-# pylash_sillyGame
-My silly game based on pylash
+# Silly Greedy Snake
+
+A silly game based on pylash
